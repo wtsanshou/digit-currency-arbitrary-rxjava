@@ -7,7 +7,13 @@ import reactor.core.publisher.Mono;
 import java.time.LocalDateTime;
 
 
-public class ConsolePrintObserver extends DefaultObserver {
+public class CoinBasePriceObserver extends DefaultObserver {
+    private String operator;
+
+    public CoinBasePriceObserver(String operator) {
+        this.operator = operator;
+    }
+
     @Override
     public void onNext(Object o) {
         Mono<CoinBaseResponse> responseMono = (Mono<CoinBaseResponse>) o;
@@ -17,7 +23,7 @@ public class ConsolePrintObserver extends DefaultObserver {
                     System.out.println(
                             "[" + LocalDateTime.now() + " "
                                     + coinBaseResponse.getData().getBase()
-                                    + " Buy Price: $" + coinBaseResponse.getData().getAmount()
+                                    + " CoinBase " + operator +" Price: $" + coinBaseResponse.getData().getAmount()
                                     + "" + coinBaseResponse.getData().getCurrency()
                     );
                 }
@@ -31,6 +37,6 @@ public class ConsolePrintObserver extends DefaultObserver {
 
     @Override
     public void onComplete() {
-        System.out.println("Completed!");
+        System.out.println("CoinBase Completed!");
     }
 }

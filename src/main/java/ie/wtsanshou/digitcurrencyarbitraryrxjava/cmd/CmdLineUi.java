@@ -1,7 +1,9 @@
 package ie.wtsanshou.digitcurrencyarbitraryrxjava.cmd;
 
-import ie.wtsanshou.digitcurrencyarbitraryrxjava.observer.ConsolePrintObserver;
-import ie.wtsanshou.digitcurrencyarbitraryrxjava.service.CoinbaseService;
+import ie.wtsanshou.digitcurrencyarbitraryrxjava.observer.CoinBasePriceObserver;
+import ie.wtsanshou.digitcurrencyarbitraryrxjava.observer.CryptoComparePriceObserver;
+import ie.wtsanshou.digitcurrencyarbitraryrxjava.service.CoinBaseApiService;
+import ie.wtsanshou.digitcurrencyarbitraryrxjava.service.CryptoCompareService;
 import io.reactivex.Observable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -13,20 +15,31 @@ import java.util.concurrent.TimeUnit;
 public class CmdLineUi implements CommandLineRunner {
 
     @Autowired
-    private CoinbaseService coinbaseService;
+    private CoinBaseApiService coinBaseApiService;
+
+    @Autowired
+    private CryptoCompareService cryptoCompareApiService;
+
+    private final int INTERVAL = 10;
+    private final TimeUnit SECOND = TimeUnit.SECONDS;
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args){
+
 
         System.out.println("Starting receive digit currency prices!");
 
-        Observable.interval(3000, TimeUnit.MILLISECONDS)
-                .map(tick -> coinbaseService.getCryptoPtrice("BTC-USD"))
-                .subscribe(new ConsolePrintObserver());
+        Observable.interval(INTERVAL, SECOND)
+                .map(tick -> coinBaseApiService.getCryptoBuyPrice("BTC-", "USD"))
+                .subscribe(new CoinBasePriceObserver("Buy"));
 
-        Observable.interval(3000, TimeUnit.MILLISECONDS)
-                .map(tick -> coinbaseService.getCryptoPtrice("ETH-USD"))
-                .subscribe(new ConsolePrintObserver());
+        Observable.interval(INTERVAL, SECOND)
+                .map(tick -> coinBaseApiService.getCryptoSellPrice("BTC-", "USD"))
+                .subscribe(new CoinBasePriceObserver("Sell"));
+
+        Observable.interval(INTERVAL, SECOND)
+                .map(tick -> cryptoCompareApiService.getCryptoBuyPrice("BTC", "USD"))
+                .subscribe(new CryptoComparePriceObserver());
 
     }
 }
